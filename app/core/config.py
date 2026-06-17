@@ -1,8 +1,10 @@
 from functools import lru_cache
 from typing import Annotated
 
-from pydantic import AnyUrl, Field, field_validator
+from pydantic import AnyUrl, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+
+INSECURE_DEV_JWT_SECRET = "insecure-local-development-secret-do-not-use-in-production"  # noqa: S105
 
 
 class Settings(BaseSettings):
@@ -14,7 +16,8 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://library:library@localhost:5432/library"
     test_database_url: str | None = None
 
-    jwt_secret_key: Annotated[str, Field(min_length=32)]
+    jwt_secret_key: str = ""
+    allow_insecure_dev_secret: bool = False
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: Annotated[int, Field(gt=0)] = 15
     refresh_token_expire_days: Annotated[int, Field(gt=0)] = 30
@@ -35,6 +38,24 @@ class Settings(BaseSettings):
         if isinstance(value, list):
             return value
         msg = "CORS_ORIGINS must be a comma-separated string"
+        raise ValueError(msg)
+
+    @model_validator(mode="after")
+    def validate_jwt_secret(self) -> "Settings":
+        if self.jwt_secret_key:
+            if len(self.jwt_secret_key) < 32:
+                msg = "JWT_SECRET_KEY must be at least 32 characters long"
+                raise ValueError(msg)
+            return self
+
+        if self.allow_insecure_dev_secret and self.environment in {"local", "test"}:
+            self.jwt_secret_key = INSECURE_DEV_JWT_SECRET
+            return self
+
+        msg = (
+            "JWT_SECRET_KEY is required. For offline local demos only, set "
+            "ALLOW_INSECURE_DEV_SECRET=true with ENVIRONMENT=local or test."
+        )
         raise ValueError(msg)
 
 

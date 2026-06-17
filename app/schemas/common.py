@@ -31,5 +31,9 @@ class OrmModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class StrictRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
 class MessageResponse(BaseModel):
     message: str = Field(examples=["ok"])

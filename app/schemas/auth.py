@@ -1,14 +1,15 @@
 from pydantic import BaseModel, EmailStr, Field
 
+from app.schemas.common import StrictRequest
 from app.schemas.user import UserRead
 
 
-class RegisterRequest(BaseModel):
+class RegisterRequest(StrictRequest):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
 
 
-class LoginRequest(BaseModel):
+class LoginRequest(StrictRequest):
     email: EmailStr
     password: str = Field(min_length=1, max_length=128)
 
@@ -20,11 +21,11 @@ class TokenPair(BaseModel):
     expires_in: int
 
 
-class RefreshRequest(BaseModel):
+class RefreshRequest(StrictRequest):
     refresh_token: str = Field(min_length=1)
 
 
-class LogoutRequest(BaseModel):
+class LogoutRequest(StrictRequest):
     refresh_token: str = Field(min_length=1)
 
 

@@ -41,6 +41,8 @@ For local development the app container runs migrations before starting. Product
 
 See `.env.example` for all variables. Important values include `DATABASE_URL`, `JWT_SECRET_KEY`, token lifetimes, and `MAX_CSV_UPLOAD_BYTES`. Do not commit real secrets.
 
+`JWT_SECRET_KEY` is required by default. For an offline local demo only, set `ENVIRONMENT=local` and `ALLOW_INSECURE_DEV_SECRET=true`; do not use that mode in production.
+
 ## Commands
 
 ```bash

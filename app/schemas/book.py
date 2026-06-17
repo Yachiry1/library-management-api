@@ -2,11 +2,11 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import Field, field_validator, model_validator
 
 from app.core.normalization import is_valid_isbn, normalize_isbn
 from app.schemas.author import AuthorRead
-from app.schemas.common import OrmModel, PaginatedResponse
+from app.schemas.common import OrmModel, PaginatedResponse, StrictRequest
 
 
 class BookSortField(StrEnum):
@@ -20,7 +20,7 @@ class SortDirection(StrEnum):
     desc = "desc"
 
 
-class BookBase(BaseModel):
+class BookBase(StrictRequest):
     title: str = Field(min_length=1, max_length=500)
     isbn: str | None = Field(default=None, max_length=32)
     publication_year: int | None = Field(default=None, ge=1)
@@ -56,7 +56,7 @@ class BookCreate(BookBase):
     pass
 
 
-class BookUpdate(BaseModel):
+class BookUpdate(StrictRequest):
     title: str | None = Field(default=None, min_length=1, max_length=500)
     isbn: str | None = Field(default=None, max_length=32)
     publication_year: int | None = Field(default=None, ge=1)
